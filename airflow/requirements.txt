@@ -1,0 +1,7 @@
+apache-airflow-providers-apache-spark
+apache-airflow-providers-google
+datetime
+pandas
+pathlib
+pyspark
+yfinance
