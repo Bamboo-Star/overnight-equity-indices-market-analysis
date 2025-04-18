@@ -176,7 +176,11 @@ with data_elt_workflow:
         task_id='spark_data_transform_task',
         application='/opt/airflow/scripts/data_transform_script.py',
         conn_id='spark_default',
-        conf={'spark.master': 'spark://spark-master:7077'},
+        conf={
+            'spark.master': 'spark://spark-master:7077',
+            'spark.hadoop.google.cloud.auth.service.account.json.keyfile': '/.google/credentials/google_credentials.json',
+            'spark.executorEnv.GOOGLE_APPLICATION_CREDENTIALS': '/.google/credentials/google_credentials.json',
+        },
         application_args=[
             '--project_id', GCP_PROJECT_ID,
             '--dataset_id', GCP_BIGQUERY_DATASET,

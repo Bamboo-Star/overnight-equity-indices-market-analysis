@@ -65,8 +65,23 @@ df_return = spark.sql("""
     ON std.Ticker = scd.Ticker
     """)
 
+df_return.registerTempTable('stock_daliy_return')
+
+# obtain culmulative return and positive return flag
+df_return_cumul = spark.sql("""
+    SELECT
+        *,
+        EXP(SUM(LOG(IntradReturn)) OVER (PARTITION BY Ticker ORDER BY Date)) as IntradReturnCumul,
+        EXP(SUM(LOG(OvernigtReturn)) OVER (PARTITION BY Ticker ORDER BY Date)) as OvernigtReturnCumul,
+        (CASE WHEN IntradReturn >= 1 THEN 1 ELSE 0 END) as IntradReturnPositive,
+        (CASE WHEN OvernigtReturn >= 1 THEN 1 ELSE 0 END) as OvernigtReturnPositive
+    FROM 
+        stock_daliy_return
+    WHERE OvernigtReturn IS NOT NULL
+    """)
+
 # write the return table to bigquery
-df_return.write \
+df_return_cumul.write \
     .format('bigquery') \
     .option("temporaryGcsBucket", gcs_bucket) \
     .option('table', output_table) \
